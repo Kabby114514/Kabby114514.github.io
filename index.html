@@ -441,15 +441,15 @@ document.addEventListener('DOMContentLoaded',function(){
 <!-- ========== 视图：首页 ========== -->
 <div class="view active" id="view-home">
   <header class="hero">
-    <img class="bg on" data-hero="0" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@f308bed36080260150af915e42f993f8ee063fba/images/hero/p001.jpg" alt="厦门夜色 · 城市风光">
-    <img class="bg" data-hero="1" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@f308bed36080260150af915e42f993f8ee063fba/images/hero/p002.jpg" alt="海南航空机头 · 航空">
-    <img class="bg" data-hero="2" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@f308bed36080260150af915e42f993f8ee063fba/images/hero/p003.jpg" alt="砖墙上的装置 · 人文扫街">
-    <img class="bg" data-hero="3" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@f308bed36080260150af915e42f993f8ee063fba/images/hero/p004.jpg" alt="绿裙群舞 · 舞台">
-    <img class="bg" data-hero="4" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@f308bed36080260150af915e42f993f8ee063fba/images/hero/p005.jpg" alt="白鹭独立 · 动物">
-    <img class="bg" data-hero="5" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@f308bed36080260150af915e42f993f8ee063fba/images/hero/p006.jpg" alt="积雨云与蓝色天光 · 自然风光">
-    <img class="bg" data-hero="6" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@f308bed36080260150af915e42f993f8ee063fba/images/hero/p007.jpg" alt="街头手艺人 · 人物">
-    <img class="bg" data-hero="7" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@f308bed36080260150af915e42f993f8ee063fba/images/hero/p008.jpg" alt="起跑 · 运动">
-    <img class="bg" data-hero="8" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@f308bed36080260150af915e42f993f8ee063fba/images/hero/p009.jpg" alt="古厝茶室 · 古建">
+    <img class="bg on" data-hero="0" data-src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@f308bed36080260150af915e42f993f8ee063fba/images/hero/p001.jpg" alt="厦门夜色 · 城市风光">
+    <img class="bg" data-hero="1" data-src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@f308bed36080260150af915e42f993f8ee063fba/images/hero/p002.jpg" alt="海南航空机头 · 航空">
+    <img class="bg" data-hero="2" data-src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@f308bed36080260150af915e42f993f8ee063fba/images/hero/p003.jpg" alt="砖墙上的装置 · 人文扫街">
+    <img class="bg" data-hero="3" data-src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@f308bed36080260150af915e42f993f8ee063fba/images/hero/p004.jpg" alt="绿裙群舞 · 舞台">
+    <img class="bg" data-hero="4" data-src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@f308bed36080260150af915e42f993f8ee063fba/images/hero/p005.jpg" alt="白鹭独立 · 动物">
+    <img class="bg" data-hero="5" data-src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@f308bed36080260150af915e42f993f8ee063fba/images/hero/p006.jpg" alt="积雨云与蓝色天光 · 自然风光">
+    <img class="bg" data-hero="6" data-src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@f308bed36080260150af915e42f993f8ee063fba/images/hero/p007.jpg" alt="街头手艺人 · 人物">
+    <img class="bg" data-hero="7" data-src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@f308bed36080260150af915e42f993f8ee063fba/images/hero/p008.jpg" alt="起跑 · 运动">
+    <img class="bg" data-hero="8" data-src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@f308bed36080260150af915e42f993f8ee063fba/images/hero/p009.jpg" alt="古厝茶室 · 古建">
     <div class="veil"></div>
     <div class="content">
       <div class="eyebrow">DOCUMENTING MOMENTS THROUGH IMAGES</div>
@@ -792,7 +792,14 @@ const heroEls={
   bgs:document.querySelectorAll('.hero .bg'),
   dots:document.getElementById('heroDots')
 };
+function loadHero(i){
+  const b=heroEls.bgs[i]; if(!b) return;
+  const u=b.dataset.src;
+  if(u && !b.getAttribute('src')) b.src=u;   // 轮播到才加载，避免首屏下载全部9张大图
+}
 function heroRender(){
+  loadHero(heroIndex);                            // 当前图
+  loadHero((heroIndex+1)%heroEls.bgs.length);     // 提前预加载下一张
   document.getElementById('heroEnterBtn').textContent='进入「'+HERO_TITLES[heroIndex]+'」作品集 →';
   heroEls.bgs.forEach((b,i)=>b.classList.toggle('on',i===heroIndex));
   heroEls.dots.innerHTML=Array.from(heroEls.bgs).map((_,i)=>
