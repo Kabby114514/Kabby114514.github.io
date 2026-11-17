@@ -8,9 +8,8 @@
 :root{
   --bg:#0a0a0a; --bg2:#141414; --card:#151515; --line:#262626;
   --text:#f2f0ea; --muted:#8a8880; --gold:#C9A558; --gold-rgb:201,165,88;
-  --shutter-dur:.72s; --boot-dur:2.2s;
+  --boot-dur:2.2s;
   --ease-out:cubic-bezier(.16,1,.3,1);
-  --ease-shutter:cubic-bezier(.87,0,.13,1);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -43,18 +42,6 @@ button{font-family:inherit;cursor:pointer}
 @keyframes boot-glow{0%,20%{opacity:0;transform:scale(.85)}50%{opacity:1;transform:scale(1)}80%,to{opacity:0;transform:scale(1.05)}}
 @keyframes boot-title-fade{0%{opacity:0}16%,58%{opacity:1}to{opacity:0}}
 
-/* 页面跳转快门 */
-.shutter-curtain{position:fixed;inset:0;z-index:84;background:#000;pointer-events:none;
-  animation:shutter-curtain var(--shutter-dur) var(--ease-shutter) both;display:none}
-.shutter-blades{position:fixed;inset:0;z-index:85;display:none;align-items:center;justify-content:center;pointer-events:none;
-  animation:shutter-blades var(--shutter-dur) var(--ease-shutter) both;transform-origin:center}
-.shutter-blades svg{width:160vmax;height:160vmax;overflow:visible}
-.shutter-blades polygon{fill:#141414;stroke:var(--gold);stroke-width:.5;vector-effect:non-scaling-stroke}
-.shutter-flash{position:fixed;inset:0;z-index:86;background:#fff;pointer-events:none;display:none;
-  animation:shutter-flash calc(var(--shutter-dur)*.91) ease-out both}
-@keyframes shutter-curtain{0%{opacity:1}to{opacity:1}}
-@keyframes shutter-blades{0%{transform:scale(.34) rotate(0);opacity:1}58%{transform:scale(1.75) rotate(9deg);opacity:1}84%{opacity:1}to{transform:scale(9) rotate(20deg);opacity:0}}
-@keyframes shutter-flash{0%{opacity:0}22%{opacity:.55}to{opacity:0}}
 .blur-veil{position:fixed;inset:0;z-index:83;pointer-events:none;background:rgba(0,0,0,.001);backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);transition:backdrop-filter .3s ease,-webkit-backdrop-filter .3s ease}
 .blur-veil.on{backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
 
@@ -496,11 +483,6 @@ document.addEventListener('DOMContentLoaded',function(){
 <div class="boot-glow" id="bootGlow"></div>
 <div class="boot-title" id="bootTitle"><div class="bt-inner"><div class="bt-cn">陈子衡摄影作品集</div><div class="bt-en">CHEN ZIHENG · PHOTOGRAPHY</div></div></div>
 
-<!-- 跳转快门 -->
-<div class="blur-veil" id="blurVeil"></div>
-<div class="shutter-curtain" id="shutterCurtain"></div>
-<div class="shutter-blades" id="shutterBlades"><svg viewBox="-2 -2 104 104"><g id="shutterPolygons"></g></svg></div>
-<div class="shutter-flash" id="shutterFlash"></div>
 
 <nav class="nav">
   <button class="brand" data-nav="home">
@@ -809,7 +791,6 @@ function makeBlades(t){
 }
 const bladePts=makeBlades(9);
 document.getElementById('bootPolygons').innerHTML=bladePts.map(p=>`<polygon points="${p}"/>`).join('');
-document.getElementById('shutterPolygons').innerHTML=bladePts.map(p=>`<polygon points="${p}"/>`).join('');
 
 /* ===== 启动帘幕：播完隐藏，保留给页面转场复用 ===== */
 (function(){
@@ -901,16 +882,19 @@ function cbStop(){}
 
 /* ===== 视图切换 + 开屏式转场（所有页面切换统一使用） ===== */
 let current='home', busy=false;
-function playShutter(){
+function playTransition(){
   return new Promise(resolve=>{
     if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){resolve();return;}
     const c=document.getElementById('bootCurtain'),t=document.getElementById('bootTitle');
     [c,t].forEach(e=>{
       if(!e)return;
+      const isCurtain=e===c;
       e.style.display='';
       e.style.animation='none';
       void e.offsetWidth;
-      e.style.animation='';
+      e.style.animation=isCurtain
+        ? 'boot-curtain 2.2s ease-in-out both'
+        : 'boot-title-fade 2.2s ease-in-out both';
     });
     setTimeout(()=>{
       [c,t].forEach(e=>{if(e)e.style.display='none';});
@@ -933,7 +917,7 @@ function switchView(target){
   busy=true;
   cbStop(); // 离开轮播时停止计时
   heroStop(); // 离开首页时停止主图轮播
-  playShutter().then(()=>{
+  playTransition().then(()=>{
     document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
     if(target==='detail'){fillDetail(pendingSeries);document.getElementById('view-detail').classList.add('active');}
     else document.getElementById('view-'+target).classList.add('active');
