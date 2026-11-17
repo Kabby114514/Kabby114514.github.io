@@ -880,11 +880,16 @@ const CB_DUR=3500;
 function cbStart(){}
 function cbStop(){}
 
-/* ===== 视图切换 + 开屏式转场（所有页面切换统一使用） ===== */
+/* ===== 视图切换 + 开屏式转场（首次 2.2s，后续切换 1.1s） ===== */
 let current='home', busy=false;
-function playTransition(){
+const TRANS_DUR=1100, TRANS_COVER=480; // 遮罩全黑时换页，避免闪出旧页面
+function playTransition(onCovered){
   return new Promise(resolve=>{
-    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){resolve();return;}
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      if(onCovered)onCovered();
+      resolve();
+      return;
+    }
     const c=document.getElementById('bootCurtain'),t=document.getElementById('bootTitle');
     [c,t].forEach(e=>{
       if(!e)return;
@@ -893,13 +898,14 @@ function playTransition(){
       e.style.animation='none';
       void e.offsetWidth;
       e.style.animation=isCurtain
-        ? 'boot-curtain 2.2s ease-in-out both'
-        : 'boot-title-fade 2.2s ease-in-out both';
+        ? `boot-curtain ${TRANS_DUR}ms ease-in-out both`
+        : `boot-title-fade ${TRANS_DUR}ms ease-in-out both`;
     });
+    setTimeout(()=>{if(onCovered)onCovered();},TRANS_COVER);
     setTimeout(()=>{
       [c,t].forEach(e=>{if(e)e.style.display='none';});
       resolve();
-    },2200);
+    },TRANS_DUR);
   });
 }
 function fillDetail(key){
@@ -917,7 +923,7 @@ function switchView(target){
   busy=true;
   cbStop(); // 离开轮播时停止计时
   heroStop(); // 离开首页时停止主图轮播
-  playTransition().then(()=>{
+  playTransition(()=>{
     document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
     if(target==='detail'){fillDetail(pendingSeries);document.getElementById('view-detail').classList.add('active');}
     else document.getElementById('view-'+target).classList.add('active');
@@ -929,8 +935,7 @@ function switchView(target){
     if(target==='carousel')cbStart();
     if(target==='home')heroStart();
     observeReveals();
-    busy=false;
-  });
+  }).then(()=>{busy=false;});
 }
 let pendingSeries='aviation';
 document.addEventListener('click',e=>{
