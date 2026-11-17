@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>陈子衡摄影作品集 · CHEN ZIHENG PHOTO</title>
+<style>
+:root{
+  --bg:#0a0a0a; --bg2:#141414; --card:#151515; --line:#262626;
+  --text:#f2f0ea; --muted:#8a8880; --gold:#C9A558; --gold-rgb:201,165,88;
+  --shutter-dur:.72s; --boot-dur:2.2s;
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --ease-shutter:cubic-bezier(.87,0,.13,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",sans-serif;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+img{display:block}
+button{font-family:inherit;cursor:pointer}
+::selection{background:var(--gold);color:#000}
+
+/* ============ 快门转场系统（迁移自参考站） ============ */
+/* 启动帘幕 */
+.boot-curtain{position:fixed;inset:0;z-index:200;background:var(--bg);pointer-events:none;
+  animation:boot-curtain var(--boot-dur) ease-in-out both}
+.boot-blades{display:none!important}
+.boot-blades svg{width:170vmax;height:170vmax;overflow:visible}
+.boot-blades polygon{fill:var(--bg);stroke:var(--gold);stroke-width:.5;vector-effect:non-scaling-stroke}
+.boot-glow{display:none!important}
+.boot-title{position:fixed;inset:0;z-index:203;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;animation:boot-title-fade var(--boot-dur) ease-in-out both}
+.boot-title .bt-inner{text-align:center;padding:0 24px}
+.boot-title .bt-cn{font-family:"Songti SC","STSong","SimSun",Georgia,serif;font-weight:400;
+  font-size:clamp(24px,5.2vw,46px);letter-spacing:.16em;line-height:1.35;color:#f2f0ea;
+  text-shadow:0 2px 24px rgba(0,0,0,.7)}
+.boot-title .bt-en{font-family:Georgia,"Times New Roman",serif;font-weight:400;
+  font-size:clamp(10px,1.5vw,14px);letter-spacing:.42em;color:#8a8880;margin-top:20px;text-transform:uppercase}
+@keyframes boot-curtain{0%,58%{opacity:1}to{opacity:0}}
+@keyframes boot-blades{0%,18%{transform:scale(.34) rotate(0);opacity:1}62%{transform:scale(1.7) rotate(14deg);opacity:1}82%{opacity:1}to{transform:scale(10) rotate(30deg);opacity:0}}
+@keyframes boot-glow{0%,20%{opacity:0;transform:scale(.85)}50%{opacity:1;transform:scale(1)}80%,to{opacity:0;transform:scale(1.05)}}
+@keyframes boot-title-fade{0%{opacity:0}16%,58%{opacity:1}to{opacity:0}}
+
+/* 页面跳转快门 */
+.shutter-curtain{position:fixed;inset:0;z-index:84;background:#000;pointer-events:none;
+  animation:shutter-curtain var(--shutter-dur) var(--ease-shutter) both;display:none}
+.shutter-blades{position:fixed;inset:0;z-index:85;display:none;align-items:center;justify-content:center;pointer-events:none;
+  animation:shutter-blades var(--shutter-dur) var(--ease-shutter) both;transform-origin:center}
+.shutter-blades svg{width:160vmax;height:160vmax;overflow:visible}
+.shutter-blades polygon{fill:#141414;stroke:var(--gold);stroke-width:.5;vector-effect:non-scaling-stroke}
+.shutter-flash{position:fixed;inset:0;z-index:86;background:#fff;pointer-events:none;display:none;
+  animation:shutter-flash calc(var(--shutter-dur)*.91) ease-out both}
+@keyframes shutter-curtain{0%{opacity:1}to{opacity:1}}
+@keyframes shutter-blades{0%{transform:scale(.34) rotate(0);opacity:1}58%{transform:scale(1.75) rotate(9deg);opacity:1}84%{opacity:1}to{transform:scale(9) rotate(20deg);opacity:0}}
+@keyframes shutter-flash{0%{opacity:0}22%{opacity:.55}to{opacity:0}}
+.blur-veil{position:fixed;inset:0;z-index:83;pointer-events:none;background:rgba(0,0,0,.001);backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);transition:backdrop-filter .3s ease,-webkit-backdrop-filter .3s ease}
+.blur-veil.on{backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+
+/* 滚动显现（迁移自参考站） */
+.reveal{opacity:0;transform:translateY(48px);
+  transition:opacity .9s var(--ease-out),transform .9s var(--ease-out)}
+.reveal.is-visible{opacity:1;transform:translateY(0)}
+/* 暗房显影 */
+.g-develop{filter:brightness(2.4) contrast(.45) saturate(0);
+  transition:filter 1.6s var(--ease-out)}
+.reveal.is-visible .g-develop{filter:brightness(1) contrast(1) saturate(1)}
+/* 字距展开 */
+.ts-spread{display:inline-block;letter-spacing:.32em;opacity:0;transform:translateY(14px);
+  transition:opacity 1s ease,transform 1.2s var(--ease-out)}
+.ts-spread.is-visible{opacity:1;transform:none;letter-spacing:.05em}
+
+/* ============ 顶栏 ============ */
+.nav{position:fixed;top:0;left:0;right:0;height:68px;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 clamp(20px,5vw,72px);
+  background:linear-gradient(180deg,rgba(10,10,10,.92),rgba(10,10,10,.72));
+  backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.06)}
+.brand{display:flex;align-items:center;gap:11px;background:none;border:0;color:inherit;padding:0}
+.brand .mk{width:34px;height:34px;border:1px solid var(--gold);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:15px;font-family:Georgia,serif}
+.brand .nm{font-size:16px;font-weight:600;letter-spacing:2px;line-height:1.1}
+.brand .en{font-size:9px;color:var(--muted);letter-spacing:2.2px;margin-top:2px}
+.menu{display:flex;align-items:center;gap:clamp(16px,2.6vw,36px)}
+.menu a{font-size:13px;color:#c9c7c0;letter-spacing:1px;position:relative;padding:6px 0;transition:color .25s;background:none;border:0}
+.menu a:hover,.menu a.on{color:#fff}
+.menu a.on::after{content:"";position:absolute;bottom:0;left:0;right:0;height:1px;background:var(--gold)}
+.menu .lang{border:1px solid #3a3a3a;border-radius:20px;padding:5px 13px;font-size:11px;color:#bbb;letter-spacing:1px}
+.menu .lang b{color:var(--gold)}
+
+/* ============ 视图系统 ============ */
+.view{display:none}
+.view.active{display:block;animation:view-in .8s var(--ease-out) both}
+@keyframes view-in{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+/* ===== 系列轮播视图 ===== */
+.carousel{position:relative;height:100vh;min-height:640px;overflow:hidden;background:#000}
+.carousel .cb-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  opacity:0;transform:scale(1.06);transition:opacity 1.1s ease,transform 4.9s linear}
+.carousel .cb-bg.on{opacity:1;transform:scale(1)}
+.carousel .cb-veil{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(90deg,rgba(10,10,10,.7) 0%,rgba(10,10,10,.15) 55%,rgba(10,10,10,.55) 100%),
+             linear-gradient(0deg,rgba(10,10,10,.85) 0%,transparent 40%,rgba(10,10,10,.5) 100%)}
+.carousel .cb-topright{position:absolute;top:clamp(110px,15vh,160px);right:clamp(20px,7vw,110px);z-index:3;text-align:right;max-width:min(560px,80vw);
+  text-shadow:0 2px 16px rgba(0,0,0,.9)}
+.carousel .cb-topright::before{content:"";position:absolute;z-index:-1;top:-40px;right:-60px;left:20%;bottom:-40px;
+  background:radial-gradient(ellipse at top right,rgba(0,0,0,.55),transparent 72%);pointer-events:none}
+.carousel .cb-count{font-size:12px;color:var(--gold);letter-spacing:5px;margin-bottom:16px}
+.carousel .cb-name{font-size:clamp(42px,7vw,90px);font-weight:800;letter-spacing:5px;line-height:1.05;text-shadow:0 4px 30px rgba(0,0,0,.7)}
+.carousel .cb-en{font-size:clamp(15px,2vw,24px);color:#d8d4cc;letter-spacing:6px;font-weight:300;margin-top:14px}
+.carousel .cb-desc{font-size:13px;color:#b0ada5;letter-spacing:1px;margin-top:20px;line-height:1.9;margin-left:auto;max-width:440px}
+.carousel .cb-enter{position:absolute;right:clamp(20px,7vw,110px);bottom:clamp(70px,11vh,120px);z-index:4;
+  display:inline-flex;align-items:center;gap:14px;padding:16px 32px;border-radius:34px;
+  background:#f2f0ea;color:#111;border:1px solid #f2f0ea;font-size:13px;font-weight:600;letter-spacing:2px;transition:.28s}
+.carousel .cb-enter:hover{background:var(--gold);border-color:var(--gold);transform:translateY(-3px)}
+.carousel .cb-dots{position:absolute;left:clamp(20px,7vw,110px);bottom:clamp(76px,11.5vh,126px);z-index:4;display:flex;gap:14px}
+.carousel .cb-dot{width:36px;height:3px;padding:0;border:0;background:rgba(255,255,255,.28);cursor:pointer;position:relative;overflow:hidden;transition:background .3s}
+.carousel .cb-dot.on{background:rgba(255,255,255,.5)}
+.carousel .cb-dot .fill{position:absolute;inset:0;width:0;background:var(--gold)}
+.carousel .cb-dot.on .fill{animation:dot-fill 5s linear forwards}
+@keyframes dot-fill{from{width:0}to{width:100%}}
+.carousel .cb-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:4;width:50px;height:50px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.35);background:rgba(10,10,10,.25);color:#fff;font-size:22px;cursor:pointer;transition:.25s;
+  display:flex;align-items:center;justify-content:center}
+.carousel .cb-arrow:hover{border-color:var(--gold);color:var(--gold)}
+.carousel .cb-prev{left:clamp(20px,5vw,72px)}
+.carousel .cb-next{right:clamp(20px,5vw,72px)}
+.carousel .cb-hint{position:absolute;left:clamp(20px,7vw,110px);bottom:clamp(52px,8vh,90px);z-index:4;font-size:10px;color:#8a8880;letter-spacing:2px}
+
+/* 封面 */
+.hero{height:100vh;min-height:640px;position:relative;overflow:hidden}
+.hero .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 35%;
+  opacity:0;transition:opacity .77s ease;animation:hero-zoom 2.94s var(--ease-out) forwards,hero-drift 30s ease-in-out 2.94s infinite alternate;
+  animation-play-state:paused}
+.hero .bg.on{opacity:1;animation-play-state:running}
+@keyframes hero-zoom{0%{transform:scale(1.12)}to{transform:scale(1)}}
+@keyframes hero-drift{0%{transform:scale(1) translate(0)}to{transform:scale(1.07) translate(-1.2%,-1.5%)}}
+.hero-dots{position:absolute;right:clamp(20px,7vw,110px);bottom:clamp(30px,6vh,60px);z-index:3;display:flex;gap:10px}
+.hero-dot{width:28px;height:2px;padding:0;border:0;background:rgba(255,255,255,.3);cursor:pointer;position:relative;overflow:hidden}
+.hero-dot.on{background:rgba(255,255,255,.6)}
+.hero-dot .fill{position:absolute;inset:0;width:0;background:var(--gold)}
+.hero-dot.on .fill{animation:hero-dot-fill 2.94s linear forwards}
+@keyframes hero-dot-fill{to{width:100%}}
+.hero .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,10,.35) 0%,rgba(10,10,10,.1) 40%,rgba(10,10,10,.94) 100%)}
+.hero .content{position:absolute;left:clamp(20px,7vw,110px);bottom:clamp(80px,12vh,140px);z-index:2;max-width:760px}
+.hero .eyebrow{font-size:12px;color:var(--gold);letter-spacing:5px;margin-bottom:20px}
+.hero h1{font-size:clamp(56px,9vw,110px);font-weight:800;letter-spacing:4px;line-height:1;text-shadow:0 2px 30px rgba(0,0,0,.5)}
+.hero .latin{font-size:clamp(20px,2.4vw,30px);font-weight:300;letter-spacing:6px;margin-top:12px;color:#e8e4da}
+.hero .latin span{color:var(--gold)}
+.hero .desc{font-size:13px;color:#b8b5ae;letter-spacing:1px;margin-top:22px;line-height:1.9}
+.hero .btns{display:flex;gap:14px;margin-top:30px;flex-wrap:wrap}
+.btn{padding:12px 26px;border-radius:30px;font-size:12.5px;letter-spacing:1.5px;transition:.25s;display:inline-block}
+.btn-primary{background:#f2f0ea;color:#111;font-weight:600;border:1px solid #f2f0ea}
+.btn-primary:hover{background:var(--gold);border-color:var(--gold);transform:translateY(-2px)}
+.btn-ghost{border:1px solid rgba(255,255,255,.4);color:#e8e6e0;background:transparent}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-2px)}
+.scroll-hint{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:2;color:#888;font-size:10px;letter-spacing:3px;text-align:center;animation:bob 2.5s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translate(-50%,0);opacity:.6}50%{transform:translate(-50%,8px);opacity:1}}
+
+/* 通用容器 */
+.wrap{max-width:1320px;margin:0 auto;padding:0 clamp(20px,5vw,72px)}
+.section{padding:110px 0 30px}
+.sec-top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:44px;gap:20px}
+.sec-label{font-size:11px;color:var(--gold);letter-spacing:4px;margin-bottom:14px}
+.sec-title{font-size:clamp(34px,5vw,56px);font-weight:800;letter-spacing:3px;line-height:1}
+.sec-note{font-size:11px;color:var(--muted);letter-spacing:2px;white-space:nowrap}
+
+/* 引言 */
+.quote{padding:120px 0 20px}
+.quote .qm{font-size:clamp(24px,3.6vw,44px);font-weight:600;line-height:1.55;letter-spacing:2px;max-width:1080px}
+.quote .qm em{font-style:normal;color:var(--gold)}
+.quote p{color:#9a978f;font-size:13.5px;line-height:2.1;max-width:920px;margin-top:26px;letter-spacing:.5px}
+
+/* 系列卡片 */
+.card{position:relative;border-radius:6px;overflow:hidden;background:#000;display:block;
+  border:1px solid rgba(255,255,255,.05);cursor:pointer;width:100%;text-align:left;padding:0;color:inherit}
+.card .im{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  transition:transform 1.2s var(--ease-out),filter 1.2s}
+.card:hover .im{transform:scale(1.07)}
+.card .shade{position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(0,0,0,.82) 0%,rgba(0,0,0,.4) 45%,rgba(0,0,0,.05) 100%),linear-gradient(0deg,rgba(0,0,0,.6),transparent 60%)}
+.card .info{position:absolute;left:clamp(22px,3vw,42px);bottom:clamp(26px,4vw,44px);z-index:2}
+.card .en{font-size:10.5px;color:#cfcdc6;letter-spacing:2.5px;margin-bottom:10px}
+.card h3{font-size:clamp(22px,2.8vw,34px);font-weight:700;letter-spacing:2px;margin-bottom:8px;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.card .sub{font-size:12px;color:#b6b3ab;letter-spacing:.5px}
+.card .count{display:inline-block;margin-top:14px;font-size:11px;color:var(--gold);letter-spacing:1px}
+.card .s-arrow{position:absolute;right:clamp(20px,3vw,34px);bottom:clamp(26px,4vw,44px);z-index:2;
+  width:44px;height:44px;border:1px solid rgba(255,255,255,.6);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  transition:transform .5s var(--ease-out),background .5s,color .5s}
+.card:hover .s-arrow{background:var(--gold);border-color:var(--gold);color:#000;transform:translate(6px,-6px)}
+.card-wide{height:clamp(300px,38vw,470px);margin-bottom:18px}
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.card-grid .card{height:clamp(260px,30vw,400px)}
+
+/* 图集（系列详情） */
+.detail-head{padding:150px 0 40px;border-bottom:1px solid var(--line);margin-bottom:40px}
+.detail-head .kicker{font-size:11px;color:var(--gold);letter-spacing:4px;margin-bottom:16px}
+.detail-head h2{font-size:clamp(38px,6vw,72px);font-weight:800;letter-spacing:3px}
+.detail-head .en{font-size:clamp(16px,2vw,24px);color:var(--muted);letter-spacing:4px;margin-top:8px;font-weight:300}
+.detail-head p{color:#9a978f;font-size:13.5px;line-height:2;margin-top:22px;max-width:760px}
+.back-btn{display:inline-flex;align-items:center;gap:10px;margin-bottom:28px;margin-top:100px;background:none;border:1px solid #3a3a3a;
+  color:#c9c7c0;padding:9px 18px;border-radius:24px;font-size:12px;letter-spacing:1px;transition:.25s}
+.back-btn:hover{border-color:var(--gold);color:var(--gold)}
+/* 悬浮返回键：二级页面滚动时始终可见 */
+.float-back{position:fixed;top:84px;left:clamp(20px,5vw,72px);z-index:95;
+  display:none;align-items:center;gap:9px;padding:10px 20px;border-radius:26px;
+  background:rgba(10,10,10,.86);backdrop-filter:blur(10px);
+  border:1px solid rgba(201,165,88,.5);color:#e8e4da;font-size:12px;letter-spacing:1px;
+  box-shadow:0 6px 24px rgba(0,0,0,.5);transition:.25s}
+.float-back.show{display:inline-flex}
+.float-back:hover{border-color:var(--gold);color:var(--gold);transform:translateX(-3px)}
+.gallery{columns:3;column-gap:16px}
+.gallery figure{break-inside:avoid;margin-bottom:16px;position:relative;border-radius:5px;overflow:hidden;background:#111}
+.gallery img{width:100%;display:block;transition:transform .7s var(--ease-out),filter .7s}
+.gallery figure:hover img{transform:scale(1.04)}
+.gallery figcaption{position:absolute;left:0;right:0;bottom:0;padding:30px 14px 12px;
+  background:linear-gradient(transparent,rgba(0,0,0,.82));color:#e8e6e0;font-size:11px;letter-spacing:1px;opacity:0;transition:opacity .4s}
+.gallery figure:hover figcaption{opacity:1}
+
+/* 更多作品 网格 */
+.more-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.mcard{position:relative;height:clamp(220px,24vw,330px);border-radius:5px;overflow:hidden;background:#000;border:1px solid rgba(255,255,255,.05);cursor:pointer;padding:0;color:inherit;text-align:left;width:100%}
+.mcard .im{width:100%;height:100%;object-fit:cover;transition:transform .7s}
+.mcard:hover .im{transform:scale(1.06)}
+.mcard .shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.85),transparent 65%)}
+.mcard .info{position:absolute;left:20px;right:20px;bottom:20px;z-index:2}
+.mcard .en{font-size:9.5px;color:#c9c6bf;letter-spacing:2px;margin-bottom:6px}
+.mcard h4{font-size:18px;font-weight:600;letter-spacing:1px}
+.mcard .arrow{position:absolute;right:18px;top:18px;width:32px;height:32px;border:1px solid rgba(255,255,255,.5);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;z-index:2;transition:.25s}
+.mcard:hover .arrow{background:var(--gold);border-color:var(--gold);color:#000}
+
+/* 统计条 */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin:10px 0 40px}
+.stats .st{background:var(--card);padding:36px 20px;text-align:center}
+.stats .st .n{font-size:clamp(32px,4vw,50px);font-weight:800;color:var(--gold);line-height:1}
+.stats .st .n small{font-size:18px}
+.stats .st .l{font-size:11px;color:var(--muted);letter-spacing:2px;margin-top:12px}
+
+/* 胶片轨（迁移自参考站 marquee） */
+.film-strip{overflow:hidden;padding:24px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:0 0 40px}
+.film-track{display:flex;width:max-content;animation:film-roll 40s linear infinite}
+.film-frame{position:relative;flex:0 0 auto;height:96px;width:150px;margin-right:12px;overflow:hidden;border-radius:1px;background:#111}
+.film-frame img{height:100%;width:100%;object-fit:cover;opacity:.7;transition:opacity .4s,transform .6s}
+.film-frame:hover img{opacity:1;transform:scale(1.05)}
+@keyframes film-roll{to{transform:translate(-50%)}}
+
+/* 关于 */
+.about{display:grid;grid-template-columns:1.05fr .95fr;gap:70px;align-items:center;padding:20px 0 60px}
+.about .portrait{position:relative;border-radius:6px;overflow:hidden;height:clamp(380px,44vw,560px)}
+.about .portrait img{width:100%;height:100%;object-fit:cover}
+.about .portrait .tag{position:absolute;left:20px;bottom:20px;background:rgba(10,10,10,.8);border:1px solid var(--gold);padding:9px 16px;font-size:11px;color:var(--gold);letter-spacing:2px;border-radius:3px}
+.about .txt h2{font-size:clamp(38px,5vw,58px);font-weight:800;letter-spacing:2px;margin-bottom:30px}
+.about .txt h2 em{font-style:normal;color:var(--gold)}
+.about .txt p{font-size:17px;color:#c9c5bc;line-height:2.05;margin-bottom:20px;letter-spacing:.5px}
+.about .txt .sig{margin-top:34px;font-family:Georgia,serif;font-style:italic;font-size:27px;color:var(--gold)}
+
+/* 页脚 */
+footer{border-top:1px solid var(--line);margin-top:70px;padding:60px 0 40px}
+.foot-top{display:flex;justify-content:space-between;align-items:flex-start;gap:30px;flex-wrap:wrap;padding-bottom:40px}
+.foot-brand .nm{font-size:24px;font-weight:700;letter-spacing:3px}
+.foot-brand .en{font-size:11px;color:var(--gold);letter-spacing:4px;margin-top:6px}
+.foot-brand p{font-size:12px;color:var(--muted);margin-top:16px;line-height:1.9;max-width:380px}
+.foot-links{display:flex;gap:60px}
+.foot-links h5{font-size:11px;color:var(--gold);letter-spacing:2px;margin-bottom:16px}
+.foot-links a{display:block;font-size:12px;color:#9a978f;margin-bottom:10px;transition:color .2s;background:none;border:0;padding:0}
+.foot-links a:hover{color:#fff}
+.foot-bot{border-top:1px solid var(--line);padding-top:26px;display:flex;justify-content:space-between;font-size:11px;color:#6a6862;letter-spacing:1px;flex-wrap:wrap;gap:12px}
+.foot-bot b{color:var(--gold)}
+
+@media(max-width:820px){
+  .menu a:not(.lang){display:none}
+  .card-grid,.more-grid,.about,.stats{grid-template-columns:1fr 1fr}
+  .gallery{columns:2}
+  .about{grid-template-columns:1fr;gap:36px}
+  .about .portrait{max-width:520px}
+  .section{padding:80px 0 20px}
+  .foot-links{gap:30px}
+}
+@media(max-width:520px){
+  .more-grid,.stats,.card-grid{grid-template-columns:1fr}
+  .gallery{columns:1}
+}
+/* 尊重减弱动效 */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .reveal,.ts-spread{opacity:1!important;transform:none!important}
+  .g-develop{filter:none!important}
+}
+</style>
+
+<style>
+/* ===== 13.1 小字整体放大（原 9~13px 偏小）===== */
+.brand .en{font-size:11px;letter-spacing:2px}
+.menu a{font-size:14.5px}
+.menu .lang{font-size:12.5px}
+.sec-label{font-size:12.5px;letter-spacing:3.6px}
+.sec-note{font-size:12.5px}
+.card .en{font-size:12px}
+.card .sub{font-size:13.5px}
+.card .count{font-size:12.5px}
+.detail-head .kicker{font-size:12.5px}
+.detail-head p{font-size:15px;line-height:1.95}
+.quote p{font-size:15px}
+.stats .st .l{font-size:12.5px}
+.about .portrait .tag{font-size:12.5px}
+.hero .eyebrow{font-size:13px;letter-spacing:4.4px}
+.hero .desc{font-size:14.5px;line-height:1.95}
+.btn{font-size:13.5px}
+.scroll-hint{font-size:11.5px}
+.carousel .cb-count{font-size:13px}
+.carousel .cb-desc{font-size:14.5px}
+.carousel .cb-hint{font-size:11.5px}
+.carousel .cb-enter{font-size:14px}
+.back-btn{font-size:13px}
+.float-back{font-size:13px}
+.gallery figcaption{font-size:12.5px}
+.foot-brand .en{font-size:12.5px}
+.foot-brand p{font-size:13.5px}
+.foot-links h5{font-size:12.5px}
+.foot-links a{font-size:13.5px}
+.foot-bot{font-size:12.5px}
+
+/* ===== 13.1b 关于作者：能力词与名言引文的排印 ===== */
+.about .txt p em{font-style:normal;color:var(--gold);font-weight:600}
+.about .txt p .q{font-family:Georgia,"Times New Roman","Songti SC",serif;font-style:italic;color:#ded8c8;letter-spacing:.2px}
+.about .txt p .who{font-size:.82em;color:var(--gold);letter-spacing:1px;white-space:nowrap;margin-left:5px;opacity:.9}
+.about .txt .qt{margin:4px 0 22px;padding:2px 0 2px 20px;border-left:2px solid var(--gold);
+  font-family:Georgia,"Times New Roman","Songti SC",serif;font-style:italic;
+  font-size:16.5px;line-height:1.95;color:#e2dccb;letter-spacing:.3px}
+.about .txt .qt .who{display:block;margin-top:8px;font-family:inherit;font-style:normal;
+  font-size:12.5px;letter-spacing:2px;color:var(--gold);opacity:.85}
+/* 配图列：正文较长时照片吸顶跟随，左栏不留大片空白 */
+.about{align-items:stretch}
+.about .portrait-col{position:relative}
+.about .portrait{position:sticky;top:96px}
+
+/* ===== 13.2 首页轮播指示点：加宽加高，扩大点按热区 ===== */
+.hero-dots{gap:12px;bottom:clamp(26px,5vh,52px)}
+.hero-dot{width:40px;height:20px;background:transparent!important;overflow:visible}
+.hero-dot::before{content:"";position:absolute;left:0;right:0;top:50%;height:4px;
+  margin-top:-2px;background:rgba(255,255,255,.32);transition:background .3s;border-radius:2px}
+.hero-dot.on::before{background:rgba(255,255,255,.62)}
+.hero-dot .fill{position:absolute;left:0;top:50%;height:4px;margin-top:-2px;width:0;
+  background:var(--gold);border-radius:2px}
+.hero-dot.on .fill{animation:hero-dot-fill 2.94s linear forwards}
+</style>
+
+<style>
+/* ===== 14 联系方式 ===== */
+.foot-links a.wx-copy{cursor:pointer;color:var(--gold)}
+.foot-links a.wx-copy:hover{color:#fff}
+#copyTip{position:fixed;left:50%;bottom:46px;transform:translateX(-50%) translateY(12px);
+  background:rgba(14,14,14,.94);border:1px solid rgba(198,166,100,.45);color:#f1ece1;
+  padding:11px 20px;font-size:13.5px;letter-spacing:1.2px;border-radius:3px;
+  opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:400}
+#copyTip.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var tip=document.createElement('div');tip.id='copyTip';document.body.appendChild(tip);
+  function say(t){tip.textContent=t;tip.classList.add('on');setTimeout(function(){tip.classList.remove('on');},1800);}
+  document.querySelectorAll('.wx-copy').forEach(function(el){
+    function go(e){e.preventDefault();
+      var v=el.getAttribute('data-wx');
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(v).then(function(){say('微信号已复制：'+v);},function(){say('微信号：'+v);});
+      }else{say('微信号：'+v);}
+    }
+    el.addEventListener('click',go);
+    el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){go(e);}});
+  });
+});
+</script>
+
+<style>
+/* ===== 15 顶栏：移除中英文切换后重新平衡 ===== */
+.nav{height:72px;padding:0 clamp(20px,4.6vw,64px)}
+.brand{gap:12px}
+.brand .mk{width:38px;height:38px;font-size:16px}
+.brand .nm{font-size:17.5px;letter-spacing:2.6px}
+.brand .en{font-size:11.5px;letter-spacing:2.4px;margin-top:3px}
+.menu{gap:clamp(24px,3.2vw,46px)}
+.menu a{font-size:15.5px;letter-spacing:1.4px;padding:9px 0}
+.float-back{top:90px}
+.about .portrait{position:sticky;top:100px}
+@media(max-width:1024px){
+  .menu{gap:22px}
+  .menu a{font-size:14px;letter-spacing:.8px}
+}
+@media(max-width:820px){
+  .nav{height:64px}
+  .menu a{display:block!important;font-size:13.5px;letter-spacing:.4px;padding:6px 0}
+  .menu{gap:14px}
+  .brand .en{display:none}
+  .brand .nm{font-size:16px}
+  .brand .mk{width:33px;height:33px;font-size:15px}
+  .float-back{top:80px}
+}
+@media(max-width:560px){
+  .menu a[data-nav="carousel"],.menu a[data-nav="about"]{display:none!important}
+  .menu a{font-size:13px}
+}
+</style>
+
+<style>
+/* ===== 16 手机端比例与可读性增强（仅窄屏生效，PC 端零改动）===== */
+@media(max-width:820px){
+  /* 首屏高度改用 svh：自动避开手机地址栏，竖屏比例更准 */
+  .hero,.carousel{height:100svh;min-height:560px}
+  /* 首屏内容区：左右都留边距，解除 760px 宽屏约束，杜绝横向溢出被裁 */
+  .hero .content{left:clamp(20px,6vw,40px);right:clamp(20px,6vw,40px);
+    max-width:none;bottom:clamp(92px,13vh,132px)}
+  .hero .eyebrow{font-size:10.5px;letter-spacing:2.4px;line-height:1.6}
+  .hero h1{font-size:clamp(46px,12vw,66px);letter-spacing:2px}
+  .hero .latin{font-size:clamp(15px,4vw,19px);letter-spacing:3px}
+  /* 描述：取消 440px 限宽与右对齐，左对齐铺满可用宽度，不再被切字 */
+  .hero .desc{font-size:13px;line-height:1.8;margin-left:0;max-width:100%;margin-top:14px}
+  .hero .btns{margin-top:20px;gap:10px}
+  .hero .btn{padding:11px 16px;font-size:12px;letter-spacing:.4px;min-height:42px}
+  /* 系列轮播详情页同样收紧 */
+  .carousel .cb-topright{left:clamp(20px,6vw,40px);right:clamp(20px,6vw,40px);
+    max-width:none;top:auto;bottom:clamp(128px,20vh,178px)}
+  .carousel .cb-name{font-size:clamp(32px,9vw,52px);letter-spacing:2px}
+  .carousel .cb-en{font-size:clamp(13px,3.4vw,17px);letter-spacing:3px}
+  .carousel .cb-desc{font-size:13px;line-height:1.8;margin-left:0;max-width:100%}
+  .carousel .cb-enter{padding:12px 20px;font-size:12px;bottom:clamp(58px,10vh,96px)}
+  .carousel .cb-hint{display:none}
+  /* 详情页顶部留白收紧（原为宽屏 150px） */
+  .detail-head{padding-top:104px}
+  .detail-head h2{font-size:clamp(34px,9vw,52px)}
+  .back-btn{margin-top:88px}
+  /* 关于页：手机单列时照片吸顶会挡正文，取消吸顶 */
+  .about .portrait,.about .portrait-col{position:static!important;top:auto!important}
+  .about .txt p{font-size:16px;line-height:2}
+  /* 导航横排修复：原 display:block 使菜单竖排挤出屏幕，手机端强制 flex 横排 */
+  .menu{display:flex!important;gap:clamp(12px,3.5vw,22px);flex-wrap:nowrap}
+  .menu a{display:inline-flex!important;align-items:center;white-space:nowrap;padding:10px 0}
+  /* 触摸友好：返回键热区 */
+  .float-back{padding:10px 16px}
+}
+@media(max-width:560px){
+  /* 顶栏：品牌与菜单收紧，确保"首页/联系"完整可见不换行 */
+  .nav{height:58px;padding:0 15px}
+  .brand{gap:8px}
+  .brand .mk{width:30px;height:30px;font-size:14px}
+  .brand .nm{font-size:15px;letter-spacing:1.5px}
+  /* 修复菜单溢出：display:block 会让导航项竖排并挤出屏幕，强制回 flex 横排 */
+  .menu{display:flex!important;gap:clamp(8px,2.4vw,13px);flex-wrap:nowrap}
+  .menu a{display:inline-flex!important;font-size:clamp(11px,3vw,12.5px);letter-spacing:0;
+    min-height:40px;align-items:center;padding:8px 0;white-space:nowrap}
+  /* 恢复被旧规则隐藏的"系列作品/关于作者"，保证手机端 4 个入口齐全 */
+  .menu a[data-nav="carousel"],.menu a[data-nav="about"]{display:inline-flex!important}
+  /* 品牌变得更紧凑，给菜单腾出横向空间 */
+  .brand .en{display:none}
+  .brand .nm{font-size:14px;letter-spacing:1px}
+  .nav{gap:8px}
+  /* 超窄屏首屏进一步收敛英文，避免换行难看 */
+  .hero .eyebrow{font-size:10px;letter-spacing:2px}
+  .hero h1{font-size:clamp(44px,13vw,58px)}
+  .hero .desc{font-size:12.5px}
+  .hero .btn{padding:10px 14px;font-size:11.5px}
+  .scroll-hint{font-size:10px;bottom:12px}
+  /* 手机端轮播进度条收小：9条总宽约200px，不再横贯整屏 */
+  .hero-dots{right:16px;bottom:22px;gap:5px}
+  .hero-dot{width:18px;height:12px}
+  .hero-dot::before,.hero-dot .fill{height:2px;margin-top:-1px;border-radius:1px}
+}
+/* 横屏手机：首屏高度取实视口，标题缩小，避免内容被压扁 */
+@media(max-width:820px) and (orientation:landscape) and (max-height:500px){
+  .hero,.carousel{height:100vh;min-height:0}
+  .hero h1{font-size:38px}
+  .hero .content{bottom:32px}
+  .hero .desc{display:none}
+}
+/* ===== 关于作者：去掉照片后的双栏正文版式 ===== */
+.about{display:block;max-width:980px;margin:0 auto;padding:20px 0 60px}
+.about .txt{max-width:none}
+.about .bio{columns:2;column-gap:56px;column-rule:1px solid var(--line);margin-top:8px}
+.about .bio p{break-inside:avoid}
+.about .sig{text-align:right}
+@media(max-width:820px){
+  .about{max-width:none}
+  .about .bio{columns:1;column-gap:0;column-rule:none}
+  .about .sig{text-align:left}
+}
+</style>
+</head>
+<body>
+
+<!-- 启动帘幕 -->
+<div class="boot-curtain" id="bootCurtain"></div>
+<div class="boot-blades" id="bootBlades"><svg viewBox="-2 -2 104 104"><g id="bootPolygons"></g></svg></div>
+<div class="boot-glow" id="bootGlow"></div>
+<div class="boot-title" id="bootTitle"><div class="bt-inner"><div class="bt-cn">陈子衡摄影作品集</div><div class="bt-en">CHEN ZIHENG · PHOTOGRAPHY</div></div></div>
+
+<!-- 跳转快门 -->
+<div class="blur-veil" id="blurVeil"></div>
+<div class="shutter-curtain" id="shutterCurtain"></div>
+<div class="shutter-blades" id="shutterBlades"><svg viewBox="-2 -2 104 104"><g id="shutterPolygons"></g></svg></div>
+<div class="shutter-flash" id="shutterFlash"></div>
+
+<nav class="nav">
+  <button class="brand" data-nav="home">
+    <div class="mk">衡</div>
+    <div><div class="nm">陈子衡</div><div class="en">CHEN ZIHENG · PHOTO</div></div>
+  </button>
+  <div class="menu">
+    <a data-nav="home" class="on">首页</a>
+    <a data-nav="carousel">系列作品</a>
+    <a data-nav="about">关于作者</a>
+    <a href="#contact">联系</a>
+  </div>
+</nav>
+
+<!-- 悬浮返回键（二级页面显示） -->
+<button class="float-back" id="floatBack" data-nav="home">← 返回</button>
+
+<!-- ========== 视图：首页 ========== -->
+<div class="view active" id="view-home">
+  <header class="hero">
+    <img class="bg on" data-hero="0" data-src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/hero/p123.jpg" alt="C919 大飞机 · 航空">
+    <img class="bg" data-hero="1" data-src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/hero/p001.jpg" alt="厦门夜色 · 城市风光">
+    <img class="bg" data-hero="2" data-src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/hero/p003.jpg" alt="砖墙上的装置 · 人文扫街">
+    <img class="bg" data-hero="3" data-src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/hero/p004.jpg" alt="绿裙群舞 · 舞台">
+    <img class="bg" data-hero="4" data-src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/hero/p008.jpg" alt="起跑 · 运动">
+    <img class="bg" data-hero="5" data-src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/hero/p007.jpg" alt="街头手艺人 · 人物">
+    <img class="bg" data-hero="6" data-src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/hero/p005.jpg" alt="草地羊群 · 动物">
+    <img class="bg" data-hero="7" data-src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/hero/p006.jpg" alt="积雨云与蓝色天光 · 自然风光">
+    <img class="bg" data-hero="8" data-src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/hero/p009.jpg" alt="古厝茶室 · 古建">
+    <div class="veil"></div>
+    <div class="content">
+      <div class="eyebrow">DOCUMENTING MOMENTS THROUGH IMAGES</div>
+      <h1 class="ts-spread is-visible">陈子衡</h1>
+      <div class="latin">CHEN ZIHENG <span>摄影作品集</span></div>
+      <div class="desc">记录光影之间——校园的仪式、天空的航线、古建的烟火。<br>把平凡场景里值得停下的瞬间，留在画面里。</div>
+      <div class="btns">
+        <button class="btn btn-primary" id="heroEnterBtn">进入「城市风光」作品集 →</button>
+        <button class="btn btn-ghost" data-nav="about">了解摄影师</button>
+      </div>
+    </div>
+    <div class="hero-dots" id="heroDots"></div>
+    <div class="scroll-hint">向下滚动<br>↓</div>
+  </header>
+
+  <div class="wrap">
+    <section class="quote reveal">
+      <div class="qm">「关注<em>变化中的光影</em>，<br>创造性地呈现平凡场景里的<em>时代瞬间</em>。」</div>
+      <p>从校园里的仪式与人群，到机场天际的航线与晚霞，再到古建屋檐下的红灯笼与逆光剪影——他习惯站在不打扰的距离之外观察，把想留住的瞬间压在快门的最后一下。作品以对称的构图、浓烈的红色和逆光里的轮廓为标识，记录下一个个值得停留的瞬间。</p>
+    </section>
+
+    <section class="section">
+      <div class="sec-top reveal">
+        <div><div class="sec-label">SELECTED SERIES</div><div class="sec-title">系列作品</div></div>
+        <div class="sec-note">九大题材分类 · 逐张重新核对</div>
+      </div>
+      <button class="card card-wide reveal" data-nav="aviation">
+        <img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p123.jpg" alt="C919 大飞机 · 航空">
+        <div class="shade"></div>
+        <div class="info"><div class="en">AVIATION · 2025 — 2026</div><h3>航空</h3>
+          <div class="sub">航线、机场与天空里的飞行器</div><div class="count">63 张作品</div></div>
+        <div class="s-arrow">↗</div>
+      </button>
+      <div class="card-grid">
+      <button class="card reveal" data-nav="city">
+        <img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p001.jpg" alt="城市风光">
+        <div class="shade"></div>
+        <div class="info"><div class="en">CITY · 2025 — 2026</div><h3>城市风光</h3>
+          <div class="sub">街巷、建筑、夜色与秩序</div><div class="count">52 张作品</div></div>
+        <div class="s-arrow">↗</div>
+      </button>
+      <button class="card reveal" data-nav="life">
+        <img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p003.jpg" alt="人文扫街">
+        <div class="shade"></div>
+        <div class="info"><div class="en">STREET · 2025 — 2026</div><h3>人文扫街</h3>
+          <div class="sub">街头、市井与擦肩而过的人</div><div class="count">26 张作品</div></div>
+        <div class="s-arrow">↗</div>
+      </button>
+      <button class="card reveal" data-nav="stage">
+        <img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p004.jpg" alt="舞台">
+        <div class="shade"></div>
+        <div class="info"><div class="en">STAGE · 2025 — 2026</div><h3>舞台</h3>
+          <div class="sub">舞台、演出与聚光下的人</div><div class="count">22 张作品</div></div>
+        <div class="s-arrow">↗</div>
+      </button>
+      <button class="card reveal" data-nav="animal">
+        <img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p005.jpg" alt="动物">
+        <div class="shade"></div>
+        <div class="info"><div class="en">ANIMALS · 2025 — 2026</div><h3>动物</h3>
+          <div class="sub">鸟兽猫犬与流动的生灵</div><div class="count">20 张作品</div></div>
+        <div class="s-arrow">↗</div>
+      </button>
+      <button class="card reveal" data-nav="landscape">
+        <img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p006.jpg" alt="自然风光">
+        <div class="shade"></div>
+        <div class="info"><div class="en">LANDSCAPE · 2025 — 2026</div><h3>自然风光</h3>
+          <div class="sub">山水、草木、云层与天光</div><div class="count">17 张作品</div></div>
+        <div class="s-arrow">↗</div>
+      </button>
+      <button class="card reveal" data-nav="people">
+        <img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p007.jpg" alt="人物">
+        <div class="shade"></div>
+        <div class="info"><div class="en">PEOPLE · 2025 — 2026</div><h3>人物</h3>
+          <div class="sub">面孔、人群与真实的生活状态</div><div class="count">14 张作品</div></div>
+        <div class="s-arrow">↗</div>
+      </button>
+      <button class="card reveal" data-nav="sport">
+        <img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p008.jpg" alt="运动">
+        <div class="shade"></div>
+        <div class="info"><div class="en">SPORTS · 2025 — 2026</div><h3>运动</h3>
+          <div class="sub">奔跑、竞速与舒展的身体</div><div class="count">11 张作品</div></div>
+        <div class="s-arrow">↗</div>
+      </button>
+      <button class="card reveal" data-nav="heritage">
+        <img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p009.jpg" alt="古建">
+        <div class="shade"></div>
+        <div class="info"><div class="en">HERITAGE · 2025 — 2026</div><h3>古建</h3>
+          <div class="sub">牌坊、古厝与旧时的木石</div><div class="count">7 张作品</div></div>
+        <div class="s-arrow">↗</div>
+      </button>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="sec-top reveal">
+        <div><div class="sec-label">MORE WORKS</div><div class="sec-title">更多作品</div></div>
+        <div class="sec-note">旅行 · 人像 · 舞台 · 生态</div>
+      </div>
+      <div class="more-grid">
+        <button class="mcard reveal" data-nav="aviation"><img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p010.jpg" alt=""><div class="shade"></div><div class="arrow">↗</div><div class="info"><div class="en">AVIATION</div><h4>穿过树梢的飞机</h4></div></button>
+        <button class="mcard reveal" data-nav="people"><img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p011.jpg" alt=""><div class="shade"></div><div class="arrow">↗</div><div class="info"><div class="en">PEOPLE</div><h4>仪式里的人</h4></div></button>
+        <button class="mcard reveal" data-nav="landscape"><img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p006.jpg" alt=""><div class="shade"></div><div class="arrow">↗</div><div class="info"><div class="en">LANDSCAPE</div><h4>云层之上</h4></div></button>
+        <button class="mcard reveal" data-nav="city"><img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p012.jpg" alt=""><div class="shade"></div><div class="arrow">↗</div><div class="info"><div class="en">CITY</div><h4>摩天轮紫调</h4></div></button>
+        <button class="mcard reveal" data-nav="life"><img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p013.jpg" alt=""><div class="shade"></div><div class="arrow">↗</div><div class="info"><div class="en">DAILY LIFE</div><h4>红灯笼下的年味</h4></div></button>
+        <button class="mcard reveal" data-nav="city"><img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p014.jpg" alt=""><div class="shade"></div><div class="arrow">↗</div><div class="info"><div class="en">CITY NIGHT</div><h4>霓虹街角</h4></div></button>
+      </div>
+    </section>
+
+    <section class="section" id="about-anchor">
+      <div class="sec-top reveal"><div><div class="sec-label">ABOUT THE ARTIST</div><div class="sec-title">关于摄影师</div></div></div>
+      <div class="stats reveal">
+        <div class="st"><div class="n">232<small>张</small></div><div class="l">上架作品</div></div>
+        <div class="st"><div class="n">9</div><div class="l">题材系列</div></div>
+        <div class="st"><div class="n">2<small>年</small></div><div class="l">创作跨度</div></div>
+        <div class="st"><div class="n">3</div><div class="l">擅长方向</div></div>
+      </div>
+      <div class="about">
+        <div class="txt reveal">
+          <h2>以观察为序，<br>用光影<em>记录现场</em></h2>
+          <div class="bio">
+            <p>陈子衡，中北大学智能无人系统技术专业在读，摄影创作跨度两年。创作方向主要集中于人文扫街、活动纪实与航空摄影，长期关注人在环境中的真实状态，以及光线、结构与瞬间之间的关系。</p>
+            <p>在两年的拍摄实践中，我持续训练对现场的判断力：在街巷中观察人物与城市的自然联系，在活动现场记录不可复现的时间切片，在机场与天空之间捕捉速度、秩序与距离所构成的视觉关系。</p>
+            <p>画面语言上，偏爱清晰的结构与克制的表达，常以对称、框架和重复线条建立秩序，同时重视逆光、剪影与色彩对情绪的承载作用。快门之前完成构图判断，现场之中等待恰当的明暗关系，是我一直坚持的工作方式。</p>
+            <p>目前作品按九个题材系列整理，共两百余张。后续将继续围绕城市、人物与航空题材展开长期观察，在稳定积累中完善个人视觉叙事，使日常经验转化为经得起凝视的画面。</p>
+          </div>
+          <div class="sig">Chen Ziheng</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="film-strip" aria-hidden="true"><div class="film-track" id="filmTrack"></div></div>
+  </div>
+</div>
+
+<!-- ========== 视图：系列轮播 ========== -->
+<div class="view" id="view-carousel">
+  <div class="wrap">
+    <section class="section" style="padding-top:152px">
+      <div class="sec-top reveal">
+        <div><div class="sec-label">SELECTED SERIES</div><div class="sec-title">系列作品</div></div>
+      </div>
+      <button class="card card-wide reveal" data-nav="aviation">
+        <img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p123.jpg" alt="C919 大飞机 · 航空">
+        <div class="shade"></div>
+        <div class="info"><div class="en">AVIATION · 2025 — 2026</div><h3>航空</h3>
+          <div class="sub">航线、机场与天空里的飞行器</div><div class="count">63 张作品</div></div>
+        <div class="s-arrow">↗</div>
+      </button>
+      <div class="card-grid">
+      <button class="card reveal" data-nav="city">
+        <img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p001.jpg" alt="城市风光">
+        <div class="shade"></div>
+        <div class="info"><div class="en">CITY · 2025 — 2026</div><h3>城市风光</h3>
+          <div class="sub">街巷、建筑、夜色与秩序</div><div class="count">52 张作品</div></div>
+        <div class="s-arrow">↗</div>
+      </button>
+      <button class="card reveal" data-nav="life">
+        <img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p003.jpg" alt="人文扫街">
+        <div class="shade"></div>
+        <div class="info"><div class="en">STREET · 2025 — 2026</div><h3>人文扫街</h3>
+          <div class="sub">街头、市井与擦肩而过的人</div><div class="count">26 张作品</div></div>
+        <div class="s-arrow">↗</div>
+      </button>
+      <button class="card reveal" data-nav="stage">
+        <img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p004.jpg" alt="舞台">
+        <div class="shade"></div>
+        <div class="info"><div class="en">STAGE · 2025 — 2026</div><h3>舞台</h3>
+          <div class="sub">舞台、演出与聚光下的人</div><div class="count">22 张作品</div></div>
+        <div class="s-arrow">↗</div>
+      </button>
+      <button class="card reveal" data-nav="animal">
+        <img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p005.jpg" alt="动物">
+        <div class="shade"></div>
+        <div class="info"><div class="en">ANIMALS · 2025 — 2026</div><h3>动物</h3>
+          <div class="sub">鸟兽猫犬与流动的生灵</div><div class="count">20 张作品</div></div>
+        <div class="s-arrow">↗</div>
+      </button>
+      <button class="card reveal" data-nav="landscape">
+        <img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p006.jpg" alt="自然风光">
+        <div class="shade"></div>
+        <div class="info"><div class="en">LANDSCAPE · 2025 — 2026</div><h3>自然风光</h3>
+          <div class="sub">山水、草木、云层与天光</div><div class="count">17 张作品</div></div>
+        <div class="s-arrow">↗</div>
+      </button>
+      <button class="card reveal" data-nav="people">
+        <img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p007.jpg" alt="人物">
+        <div class="shade"></div>
+        <div class="info"><div class="en">PEOPLE · 2025 — 2026</div><h3>人物</h3>
+          <div class="sub">面孔、人群与真实的生活状态</div><div class="count">14 张作品</div></div>
+        <div class="s-arrow">↗</div>
+      </button>
+      <button class="card reveal" data-nav="sport">
+        <img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p008.jpg" alt="运动">
+        <div class="shade"></div>
+        <div class="info"><div class="en">SPORTS · 2025 — 2026</div><h3>运动</h3>
+          <div class="sub">奔跑、竞速与舒展的身体</div><div class="count">11 张作品</div></div>
+        <div class="s-arrow">↗</div>
+      </button>
+      <button class="card reveal" data-nav="heritage">
+        <img class="im g-develop" src="https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p009.jpg" alt="古建">
+        <div class="shade"></div>
+        <div class="info"><div class="en">HERITAGE · 2025 — 2026</div><h3>古建</h3>
+          <div class="sub">牌坊、古厝与旧时的木石</div><div class="count">7 张作品</div></div>
+        <div class="s-arrow">↗</div>
+      </button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ========== 视图：系列详情（JS动态填充） ========== -->
+<div class="view" id="view-detail">
+  <div class="wrap">
+    <div class="detail-head reveal">
+      <div class="kicker" id="dKicker">SERIES 01 / 2025 — 2026</div>
+      <h2 id="dTitle">天空的航线</h2>
+      <div class="en" id="dEn">AVIATION</div>
+      <p id="dDesc"></p>
+    </div>
+    <div class="gallery" id="dGallery"></div>
+  </div>
+</div>
+
+<!-- ========== 视图：关于 ========== -->
+<div class="view" id="view-about">
+  <div class="wrap">
+    <section class="section" style="padding-top:152px">
+      <div class="sec-top reveal"><div><div class="sec-label">ABOUT</div><div class="sec-title">关于摄影师</div></div></div>
+      <div class="stats reveal">
+        <div class="st"><div class="n">232<small>张</small></div><div class="l">上架作品</div></div>
+        <div class="st"><div class="n">9</div><div class="l">题材系列</div></div>
+        <div class="st"><div class="n">2<small>年</small></div><div class="l">创作跨度</div></div>
+        <div class="st"><div class="n">3</div><div class="l">擅长方向</div></div>
+      </div>
+      <div class="about">
+        <div class="txt reveal">
+          <h2>以观察为序，<br>用光影<em>记录现场</em></h2>
+          <div class="bio">
+            <p>陈子衡，中北大学智能无人系统技术专业在读，摄影创作跨度两年。创作方向主要集中于人文扫街、活动纪实与航空摄影，长期关注人在环境中的真实状态，以及光线、结构与瞬间之间的关系。</p>
+            <p>在两年的拍摄实践中，我持续训练对现场的判断力：在街巷中观察人物与城市的自然联系，在活动现场记录不可复现的时间切片，在机场与天空之间捕捉速度、秩序与距离所构成的视觉关系。</p>
+            <p>画面语言上，偏爱清晰的结构与克制的表达，常以对称、框架和重复线条建立秩序，同时重视逆光、剪影与色彩对情绪的承载作用。快门之前完成构图判断，现场之中等待恰当的明暗关系，是我一直坚持的工作方式。</p>
+            <p>目前作品按九个题材系列整理，共两百余张。后续将继续围绕城市、人物与航空题材展开长期观察，在稳定积累中完善个人视觉叙事，使日常经验转化为经得起凝视的画面。</p>
+          </div>
+          <div class="sig">Chen Ziheng</div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<footer id="contact">
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand"><div class="nm">陈子衡</div><div class="en">CHEN ZIHENG · PHOTOGRAPHY</div>
+        <p>记录光影之间。<br>人文扫街 · 活动纪实 · 航空摄影</p></div>
+      <div class="foot-links">
+        <div><h5>作品</h5><a data-nav="carousel">系列作品</a><a data-nav="about">关于作者</a></div>
+        <div><h5>联系</h5><a href="mailto:3465049211@qq.com">3465049211@qq.com</a><a class="wx-copy" data-wx="czh18359210429" role="button" tabindex="0">微信 czh18359210429</a></div>
+      </div>
+    </div>
+    <div class="foot-bot">
+      <span>© 2026 陈子衡摄影作品集 · ALL RIGHTS RESERVED</span>
+      <span>记录光影之间 · <b>DESIGNED WITH LIGHT</b></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ===== 快门叶片几何算法（迁移自参考站 Xo(t)） ===== */
+function makeBlades(t){
+  const pt=(r,a)=>((50+r*Math.cos(a*Math.PI/180)).toFixed(2))+','+((50+r*Math.sin(a*Math.PI/180)).toFixed(2));
+  const step=360/t, off=step*.71;
+  return Array.from({length:t},(_,i)=>{
+    const a=i*step,b=a+step;
+    return `${pt(18,a)} ${pt(18,b)} ${pt(180,b+off)} ${pt(180,a+off)}`;
+  });
+}
+const bladePts=makeBlades(9);
+document.getElementById('bootPolygons').innerHTML=bladePts.map(p=>`<polygon points="${p}"/>`).join('');
+document.getElementById('shutterPolygons').innerHTML=bladePts.map(p=>`<polygon points="${p}"/>`).join('');
+
+/* ===== 启动帘幕：播完即移除 ===== */
+(function(){
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const els=['bootCurtain','bootBlades','bootGlow','bootTitle'].map(id=>document.getElementById(id));
+  if(reduce){els.forEach(e=>e&&e.remove());return;}
+  setTimeout(()=>els.forEach(e=>e&&e.remove()),2200);
+})();
+
+/* ===== 系列数据 ===== */
+const IMG=Object.assign({},{"196":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p016.jpg"},"305":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p017.jpg"},"445":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p011.jpg"},"60":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p018.jpg"},"264":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p019.jpg"},"163":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p020.jpg"},"8":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p010.jpg"},"298":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p022.jpg"},"292":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p012.jpg"},"55":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p013.jpg"},"40":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p023.jpg"},"35":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p024.jpg"},"180":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p025.jpg"},"20":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p026.jpg"},"115":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p027.jpg"},"160":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p028.jpg"},"200":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p029.jpg"},"266":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p030.jpg"},"447":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p031.jpg"},"455":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p032.jpg"},"520":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p033.jpg"},"80":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p034.jpg"},"135":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p035.jpg"},"10":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p036.jpg"},"26":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p037.jpg"},"90":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p038.jpg"},"100":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p039.jpg"},"122":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p040.jpg"},"168":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p041.jpg"},"240":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p042.jpg"},"258":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p043.jpg"},"365":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p044.jpg"},"299":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p001.jpg"}},{"Z001":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p002.jpg"},"Z002":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p045.jpg"},"Z003":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p046.jpg"},"Z004":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p047.jpg"},"Z005":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p048.jpg"},"Z006":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p049.jpg"},"Z007":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p050.jpg"},"Z008":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p051.jpg"},"Z009":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p052.jpg"},"Z010":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p009.jpg"},"Z011":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p053.jpg"},"Z012":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p054.jpg"},"Z013":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p055.jpg"},"Z014":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p056.jpg"},"Z015":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p057.jpg"},"Z016":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p058.jpg"},"Z017":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p059.jpg"},"Z018":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p060.jpg"},"Z019":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p061.jpg"},"Z020":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p062.jpg"},"Z021":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p063.jpg"},"Z022":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p064.jpg"},"Z023":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p065.jpg"},"Z024":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p066.jpg"},"Z025":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p067.jpg"},"Z026":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p068.jpg"},"Z027":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p069.jpg"},"Z028":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p070.jpg"},"Z029":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p071.jpg"},"Z030":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p072.jpg"},"Z031":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p073.jpg"},"Z032":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p074.jpg"},"Z033":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p075.jpg"},"Z034":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p076.jpg"},"Z035":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p077.jpg"},"Z036":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p078.jpg"},"Z037":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p079.jpg"},"Z038":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p080.jpg"},"Z039":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p081.jpg"},"Z040":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p082.jpg"},"Z041":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p083.jpg"},"Z042":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p084.jpg"},"Z043":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p085.jpg"},"Z044":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p086.jpg"},"Z045":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p087.jpg"},"Z046":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p088.jpg"},"Z047":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p089.jpg"},"Z048":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p090.jpg"},"Z049":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p091.jpg"},"Z050":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p092.jpg"},"Z051":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p093.jpg"},"Z052":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p094.jpg"},"Z053":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p095.jpg"},"Z054":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p015.jpg"},"Z055":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p096.jpg"},"Z056":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p005.jpg"},"Z057":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p097.jpg"},"Z058":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p098.jpg"},"Z059":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p099.jpg"},"Z060":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p100.jpg"},"Z061":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p101.jpg"},"Z062":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p102.jpg"},"Z063":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p103.jpg"},"Z064":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p104.jpg"},"Z065":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p105.jpg"},"Z066":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p106.jpg"},"Z067":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p107.jpg"},"Z068":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p108.jpg"},"Z069":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p109.jpg"},"Z070":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p110.jpg"},"Z071":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p111.jpg"},"Z072":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p112.jpg"},"Z073":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p113.jpg"},"Z074":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p114.jpg"},"Z075":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p115.jpg"},"Z076":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p014.jpg"},"Z077":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p116.jpg"},"Z078":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p117.jpg"},"Z079":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p118.jpg"},"Z080":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p119.jpg"},"Z081":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p120.jpg"},"Z082":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p121.jpg"},"Z083":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p122.jpg"},"Z084":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p123.jpg"},"Z085":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p124.jpg"},"Z086":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p008.jpg"},"Z087":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p125.jpg"},"Z088":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p126.jpg"},"Z089":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p127.jpg"},"Z090":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p128.jpg"},"Z091":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p129.jpg"},"Z092":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p130.jpg"},"Z093":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p131.jpg"},"Z094":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p132.jpg"},"Z095":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p133.jpg"},"Z096":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p134.jpg"},"Z097":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p135.jpg"},"Z098":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p136.jpg"},"Z099":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p137.jpg"},"Z100":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p138.jpg"},"Z101":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p139.jpg"},"Z102":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p140.jpg"},"Z103":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p141.jpg"},"Z104":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p142.jpg"},"Z105":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p143.jpg"},"Z106":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p144.jpg"},"Z107":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p145.jpg"},"Z108":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p146.jpg"},"Z109":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p147.jpg"},"Z110":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p148.jpg"},"Z111":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p149.jpg"},"Z112":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p150.jpg"},"Z113":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p151.jpg"},"Z114":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p152.jpg"},"Z115":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p007.jpg"},"Z116":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p153.jpg"},"Z117":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p154.jpg"},"Z118":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p155.jpg"},"Z119":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p156.jpg"},"Z120":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p157.jpg"},"Z121":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p158.jpg"},"Z122":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p003.jpg"},"Z123":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p159.jpg"},"Z124":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p160.jpg"},"Z125":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p161.jpg"},"Z126":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p162.jpg"},"Z127":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p163.jpg"},"Z128":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p164.jpg"},"Z129":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p165.jpg"},"Z130":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p166.jpg"},"Z131":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p167.jpg"},"Z132":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p168.jpg"},"Z133":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p169.jpg"},"Z134":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p170.jpg"},"Z135":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p171.jpg"},"Z136":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p172.jpg"},"Z137":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p020.jpg"},"Z138":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p173.jpg"},"Z139":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p174.jpg"},"Z140":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p175.jpg"},"Z141":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p176.jpg"},"Z142":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p177.jpg"},"Z143":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p178.jpg"},"Z144":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p028.jpg"},"Z145":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p179.jpg"},"Z146":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p006.jpg"},"Z147":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p180.jpg"},"Z148":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p181.jpg"},"Z149":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p182.jpg"},"Z150":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p183.jpg"},"Z151":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p184.jpg"},"Z152":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p185.jpg"},"Z153":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p186.jpg"},"Z154":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p187.jpg"},"Z155":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p188.jpg"},"Z156":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p189.jpg"},"Z157":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p190.jpg"},"Z158":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p191.jpg"},"Z159":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p192.jpg"},"Z160":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p193.jpg"},"Z161":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p194.jpg"},"Z162":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p195.jpg"},"Z163":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p196.jpg"},"Z164":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p197.jpg"},"Z165":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p198.jpg"},"Z166":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p199.jpg"},"Z167":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p200.jpg"},"Z168":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p201.jpg"},"Z169":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p202.jpg"},"Z170":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p203.jpg"},"Z171":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p204.jpg"},"Z172":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p205.jpg"},"Z173":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p206.jpg"},"Z174":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p207.jpg"},"Z175":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p208.jpg"},"Z176":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p209.jpg"},"Z177":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p210.jpg"},"Z178":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p211.jpg"},"Z179":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p212.jpg"},"Z180":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p213.jpg"},"Z181":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p214.jpg"},"Z182":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p215.jpg"},"Z183":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p216.jpg"},"Z184":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p217.jpg"},"Z185":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p218.jpg"},"Z186":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p219.jpg"},"Z187":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p220.jpg"},"Z188":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p221.jpg"},"Z189":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p222.jpg"},"Z190":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p223.jpg"},"Z191":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p224.jpg"},"Z192":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p225.jpg"},"Z193":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p226.jpg"},"Z194":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p227.jpg"},"Z195":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p228.jpg"},"Z196":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p229.jpg"},"Z197":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p230.jpg"},"Z198":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p231.jpg"},"Z199":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p004.jpg"},"Z200":{"src":"https://cdn.jsdelivr.net/gh/Kabby114514/Kabby114514.github.io@e92c38e184525a0d9f7b8fb0a019339001bb8a74/images/thumb/p232.jpg"}});
+const src=id=>IMG[String(id)]?IMG[String(id)].src:'';
+const SERIES={
+  aviation:{kicker:'CATEGORY 01',title:'航空',en:'AVIATION',
+    desc:'起降、滑行、通航与掠过古建的瞬间。长焦把天空压缩成一条条航线，也把等待和快门声留在了每一帧里。',
+    imgs:[264,196,163,8,115,160,200,266,135,90,100,168,240,26,10,122,'Z001','Z003','Z007','Z012','Z019','Z021','Z022','Z026','Z028','Z030','Z034','Z040','Z048','Z051','Z055','Z064','Z066','Z067','Z070','Z075','Z077','Z078','Z079','Z083','Z084','Z089','Z090','Z093','Z104','Z106','Z107','Z108','Z109','Z110','Z111','Z113','Z117','Z121','Z124','Z126','Z133','Z134','Z144','Z147','Z148','Z149']},
+  city:{kicker:'CATEGORY 02',title:'城市风光',en:'CITY',
+    desc:'街巷、建筑、夜色与城市秩序。霓虹和砖墙都是布景，行人只是刚好走进画面的演员。',
+    imgs:[292,180,80,'Z011','Z015','Z018','Z025','Z031','Z035','Z046','Z052','Z053','Z054','Z057','Z059','Z065','Z069','Z076','Z080','Z085','Z091','Z097','Z099','Z100','Z101','Z105','Z114','Z119','Z125','Z128','Z129','Z132','Z135','Z136','Z138','Z142','Z143','Z145','Z160','Z161','Z162','Z164','Z165','Z166','Z167','Z168','Z169','Z170','Z171',258,'Z092','Z112']},
+  life:{kicker:'CATEGORY 03',title:'人文扫街',en:'STREET',
+    desc:'街头、市井与擦肩而过的人。不等摆拍，不等事件，只在人群里找那个刚好成立的瞬间。',
+    imgs:[55,'Z002','Z005','Z043','Z074','Z088','Z094','Z096','Z098','Z102','Z115','Z122','Z131','Z140','Z141','Z173','Z174','Z175','Z176','Z177','Z178','Z179','Z072','Z095','Z184']},
+  stage:{kicker:'CATEGORY 04',title:'舞台',en:'STAGE',
+    desc:'舞台、演出与聚光灯下的人。妆容、灯光和姿态交织，把某个瞬间定格成戏剧。',
+    imgs:[60,455,'Z008','Z036','Z041','Z047','Z081','Z082','Z188','Z189','Z190','Z191','Z192','Z193','Z194','Z195','Z196','Z197','Z198','Z199','Z200','Z071']},
+  animal:{kicker:'CATEGORY 05',title:'动物',en:'ANIMALS',
+    desc:'猫犬牛羊、飞鸟游禽与草间的蝴蝶。把镜头交给动物，画面便多了一份不设防的生动。',
+    imgs:['Z014','Z016','Z017','Z029','Z037','Z039','Z049','Z056','Z061','Z062','Z073','Z116','Z118','Z120','Z123','Z127','Z180','Z181','Z182']},
+  landscape:{kicker:'CATEGORY 06',title:'自然风光',en:'LANDSCAPE',
+    desc:'山水、草木与云层。慢下来的观察，让那些不构成故事的场景，自己成为主角。',
+    imgs:[305,'Z006','Z020','Z024','Z033','Z038','Z042','Z103','Z139','Z146','Z154','Z156','Z157','Z158','Z159','Z027','Z163','Z004']},
+  people:{kicker:'CATEGORY 07',title:'人物',en:'PEOPLE',
+    desc:'面孔、人群与生活里的状态。记录者在仪式和日常之间来回切换，抓的是人，而不只是事件本身。',
+    imgs:[445,447,35,520,365,20,40,'Z009','Z063','Z150','Z151','Z152','Z153']},
+  sport:{kicker:'CATEGORY 08',title:'运动',en:'SPORTS',
+    desc:'奔跑、滑翔、游泳与射箭。凝固的瞬间里，是身体最直接的力量和速度。',
+    imgs:[298,'Z023','Z032','Z044','Z045','Z058','Z060','Z068','Z086','Z130','Z013']},
+  heritage:{kicker:'CATEGORY 09',title:'古建',en:'HERITAGE',
+    desc:'牌坊、古城门与燕尾脊古厝。木石之间留着旧时的工艺，也留着今人穿行的身影。',
+    imgs:['Z050','Z010','Z087','Z183','Z185','Z186','Z187','Z172','Z155']},
+  more:{kicker:'MORE WORKS',title:'更多作品',en:'SELECTED WORKS',
+    desc:'散布在各处的单张精选。',imgs:[8,305,180,292,80,196,445,55,264]}
+};
+
+/* ===== 首页主图轮播 ===== */
+const HERO_DUR=2940;
+const HERO_KEYS=["aviation", "city", "life", "stage", "sport", "people", "animal", "landscape", "heritage"];
+const HERO_TITLES=["航空", "城市风光", "人文扫街", "舞台", "运动", "人物", "动物", "自然风光", "古建"];
+let heroIndex=0, heroTimer=null;
+const heroEls={
+  bgs:document.querySelectorAll('.hero .bg'),
+  dots:document.getElementById('heroDots')
+};
+function loadHero(i){
+  const b=heroEls.bgs[i]; if(!b) return;
+  const u=b.dataset.src;
+  if(u && !b.getAttribute('src')) b.src=u;   // 轮播到才加载，避免首屏下载全部9张大图
+}
+function heroRender(){
+  loadHero(heroIndex);                            // 当前图
+  loadHero((heroIndex+1)%heroEls.bgs.length);     // 提前预加载下一张
+  document.getElementById('heroEnterBtn').textContent='进入「'+HERO_TITLES[heroIndex]+'」作品集 →';
+  heroEls.bgs.forEach((b,i)=>b.classList.toggle('on',i===heroIndex));
+  heroEls.dots.innerHTML=Array.from(heroEls.bgs).map((_,i)=>
+    `<button class="hero-dot${i===heroIndex?' on':''}" data-i="${i}" aria-label="第${i+1}张首页图片"><span class="fill"></span></button>`).join('');
+}
+function heroStart(){
+  heroStop();
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){heroRender();return;}
+  heroRender();
+  heroTimer=setInterval(()=>{heroIndex=(heroIndex+1)%heroEls.bgs.length;heroRender();},HERO_DUR);
+}
+function heroStop(){if(heroTimer){clearInterval(heroTimer);heroTimer=null;}}
+heroEls.dots.addEventListener('click',e=>{
+  const dot=e.target.closest('.hero-dot');if(!dot)return;
+  heroIndex=+dot.dataset.i;heroStart();
+});
+document.getElementById('heroEnterBtn').addEventListener('click',()=>{
+  pendingSeries=HERO_KEYS[heroIndex];heroStop();switchView('detail');
+});
+heroStart();
+
+/* ===== 系列轮播控制 ===== */
+const CB_KEYS=["aviation", "city", "life", "stage", "animal", "landscape", "people", "sport", "heritage"];
+const CB_DUR=3500;
+function cbStart(){}
+function cbStop(){}
+
+/* ===== 视图切换 + 快门转场 ===== */
+let current='home', busy=false;
+function playShutter(){
+  return new Promise(resolve=>{
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){resolve();return;}
+    const c=document.getElementById('shutterCurtain'),b=document.getElementById('shutterBlades'),f=document.getElementById('shutterFlash'),veil=document.getElementById('blurVeil');
+    if(veil)veil.classList.add('on');
+    setTimeout(()=>{[c,b,f].forEach(e=>{e.style.display='flex';e.style.animation='none';void e.offsetWidth;e.style.animation='';});},300);
+    setTimeout(()=>{[c,b,f].forEach(e=>e.style.display='none');if(veil)veil.classList.remove('on');resolve();},1020);
+  });
+}
+function fillDetail(key){
+  const d=SERIES[key];if(!d)return;
+  document.getElementById('dKicker').textContent=d.kicker;
+  document.getElementById('dTitle').textContent=d.title;
+  document.getElementById('dEn').textContent=d.en;
+  document.getElementById('dDesc').textContent=d.desc;
+  document.getElementById('dGallery').innerHTML=d.imgs.map((id,i)=>
+    `<figure class="reveal"><img src="${src(id)}" loading="lazy" decoding="async" alt="作品 ${i+1}"><figcaption>作品 ${String(i+1).padStart(2,'0')}</figcaption></figure>`).join('');
+  observeReveals();
+}
+function switchView(target){
+  if(busy||target===current)return;
+  busy=true;
+  cbStop(); // 离开轮播时停止计时
+  heroStop(); // 离开首页时停止主图轮播
+  playShutter().then(()=>{
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    if(target==='detail'){fillDetail(pendingSeries);document.getElementById('view-detail').classList.add('active');}
+    else document.getElementById('view-'+target).classList.add('active');
+    current=target;
+    window.scrollTo(0,760);
+    document.querySelectorAll('.menu a[data-nav]').forEach(a=>a.classList.toggle('on',a.dataset.nav===target));
+    // 二级页面（轮播/详情/关于）显示悬浮返回键
+    document.getElementById('floatBack').classList.toggle('show',target==='carousel'||target==='detail'||target==='about');
+    if(target==='carousel')cbStart();
+    if(target==='home')heroStart();
+    observeReveals();
+    busy=false;
+  });
+}
+let pendingSeries='aviation';
+document.addEventListener('click',e=>{
+  const nav=e.target.closest('[data-nav]');
+  if(nav){
+    e.preventDefault();
+    const t=nav.dataset.nav;
+    if(SERIES[t]){pendingSeries=t;switchView('detail');}
+    else switchView(t);
+    return;
+  }
+  const mcard=e.target.closest('.mcard');
+  if(mcard){pendingSeries=mcard.dataset.nav||'more';switchView('detail');}
+});
+
+/* ===== 滚动显现 ===== */
+let revealObs;
+function observeReveals(){
+  if(revealObs)revealObs.disconnect();
+  revealObs=new IntersectionObserver(es=>{
+    es.forEach(en=>{if(en.isIntersecting){en.target.classList.add('is-visible');revealObs.unobserve(en.target);}});
+  },{threshold:.2,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.view.active .reveal,.view.active .ts-spread').forEach(el=>revealObs.observe(el));
+}
+observeReveals();
+
+/* ===== 胶片轨：复制一份实现无缝滚动 ===== */
+(function(){
+  const track=document.getElementById('filmTrack');
+  const ids=[196,264,'Z070','Z006','Z081',305,445,60,180,163,8,80,292,298,55];
+  const html=ids.map(id=>`<div class="film-frame"><img src="${src(id)}" alt=""></div>`).join('');
+  track.innerHTML=html+html;
+})();
+</script>
+<style>.reveal{opacity:1!important;transform:none!important}</style><script>window.addEventListener("load",function(){setTimeout(function(){document.querySelectorAll(".view").forEach(function(v){v.classList.remove("active")});document.getElementById("view-about").classList.add("active");document.getElementById("floatBack").classList.add("show");["bootCurtain","bootTitle"].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display="none"});window.scrollTo(0,760);},80);});</script></body>
+</html>
