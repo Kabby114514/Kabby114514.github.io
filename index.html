@@ -415,6 +415,75 @@ document.addEventListener('DOMContentLoaded',function(){
   .menu a{font-size:13px}
 }
 </style>
+
+<style>
+/* ===== 16 手机端比例与可读性增强（仅窄屏生效，PC 端零改动）===== */
+@media(max-width:820px){
+  /* 首屏高度改用 svh：自动避开手机地址栏，竖屏比例更准 */
+  .hero,.carousel{height:100svh;min-height:560px}
+  /* 首屏内容区：左右都留边距，解除 760px 宽屏约束，杜绝横向溢出被裁 */
+  .hero .content{left:clamp(20px,6vw,40px);right:clamp(20px,6vw,40px);
+    max-width:none;bottom:clamp(92px,13vh,132px)}
+  .hero .eyebrow{font-size:10.5px;letter-spacing:2.4px;line-height:1.6}
+  .hero h1{font-size:clamp(46px,12vw,66px);letter-spacing:2px}
+  .hero .latin{font-size:clamp(15px,4vw,19px);letter-spacing:3px}
+  /* 描述：取消 440px 限宽与右对齐，左对齐铺满可用宽度，不再被切字 */
+  .hero .desc{font-size:13px;line-height:1.8;margin-left:0;max-width:100%;margin-top:14px}
+  .hero .btns{margin-top:20px;gap:10px}
+  .hero .btn{padding:11px 16px;font-size:12px;letter-spacing:.4px;min-height:42px}
+  /* 系列轮播详情页同样收紧 */
+  .carousel .cb-topright{left:clamp(20px,6vw,40px);right:clamp(20px,6vw,40px);
+    max-width:none;top:auto;bottom:clamp(128px,20vh,178px)}
+  .carousel .cb-name{font-size:clamp(32px,9vw,52px);letter-spacing:2px}
+  .carousel .cb-en{font-size:clamp(13px,3.4vw,17px);letter-spacing:3px}
+  .carousel .cb-desc{font-size:13px;line-height:1.8;margin-left:0;max-width:100%}
+  .carousel .cb-enter{padding:12px 20px;font-size:12px;bottom:clamp(58px,10vh,96px)}
+  .carousel .cb-hint{display:none}
+  /* 详情页顶部留白收紧（原为宽屏 150px） */
+  .detail-head{padding-top:104px}
+  .detail-head h2{font-size:clamp(34px,9vw,52px)}
+  .back-btn{margin-top:88px}
+  /* 关于页：手机单列时照片吸顶会挡正文，取消吸顶 */
+  .about .portrait,.about .portrait-col{position:static!important;top:auto!important}
+  .about .txt p{font-size:14.5px;line-height:1.95}
+  /* 导航横排修复：原 display:block 使菜单竖排挤出屏幕，手机端强制 flex 横排 */
+  .menu{display:flex!important;gap:clamp(12px,3.5vw,22px);flex-wrap:nowrap}
+  .menu a{display:inline-flex!important;align-items:center;white-space:nowrap;padding:10px 0}
+  /* 触摸友好：返回键热区 */
+  .float-back{padding:10px 16px}
+}
+@media(max-width:560px){
+  /* 顶栏：品牌与菜单收紧，确保"首页/联系"完整可见不换行 */
+  .nav{height:58px;padding:0 15px}
+  .brand{gap:8px}
+  .brand .mk{width:30px;height:30px;font-size:14px}
+  .brand .nm{font-size:15px;letter-spacing:1.5px}
+  /* 修复菜单溢出：display:block 会让导航项竖排并挤出屏幕，强制回 flex 横排 */
+  .menu{display:flex!important;gap:clamp(8px,2.4vw,13px);flex-wrap:nowrap}
+  .menu a{display:inline-flex!important;font-size:clamp(11px,3vw,12.5px);letter-spacing:0;
+    min-height:40px;align-items:center;padding:8px 0;white-space:nowrap}
+  /* 恢复被旧规则隐藏的"系列作品/关于作者"，保证手机端 4 个入口齐全 */
+  .menu a[data-nav="carousel"],.menu a[data-nav="about"]{display:inline-flex!important}
+  /* 品牌变得更紧凑，给菜单腾出横向空间 */
+  .brand .en{display:none}
+  .brand .nm{font-size:14px;letter-spacing:1px}
+  .nav{gap:8px}
+  /* 超窄屏首屏进一步收敛英文，避免换行难看 */
+  .hero .eyebrow{font-size:10px;letter-spacing:2px}
+  .hero h1{font-size:clamp(44px,13vw,58px)}
+  .hero .desc{font-size:12.5px}
+  .hero .btn{padding:10px 14px;font-size:11.5px}
+  .scroll-hint{font-size:10px;bottom:12px}
+  .hero-dots{right:16px;bottom:22px}
+}
+/* 横屏手机：首屏高度取实视口，标题缩小，避免内容被压扁 */
+@media(max-width:820px) and (orientation:landscape) and (max-height:500px){
+  .hero,.carousel{height:100vh;min-height:0}
+  .hero h1{font-size:38px}
+  .hero .content{bottom:32px}
+  .hero .desc{display:none}
+}
+</style>
 </head>
 <body>
 
