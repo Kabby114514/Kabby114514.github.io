@@ -118,7 +118,7 @@ button{font-family:inherit;cursor:pointer}
 /* 封面 */
 .hero{height:100vh;min-height:640px;position:relative;overflow:hidden}
 .hero .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 35%;
-  opacity:0;transition:opacity 1.8s cubic-bezier(.33,0,.2,1);animation:hero-zoom 7s cubic-bezier(.22,.61,.36,1) forwards,hero-drift 40s ease-in-out 7s infinite alternate;
+  opacity:0;transition:opacity 1.1s cubic-bezier(.33,0,.2,1);animation:hero-zoom 6s cubic-bezier(.22,.61,.36,1) forwards,hero-drift 40s ease-in-out 6s infinite alternate;
   animation-play-state:paused}
 .hero .bg.on{opacity:1;animation-play-state:running}
 @keyframes hero-zoom{0%{transform:scale(1.12)}to{transform:scale(1)}}
@@ -127,7 +127,7 @@ button{font-family:inherit;cursor:pointer}
 .hero-dot{width:28px;height:2px;padding:0;border:0;background:rgba(255,255,255,.3);cursor:pointer;position:relative;overflow:hidden}
 .hero-dot.on{background:rgba(255,255,255,.6)}
 .hero-dot .fill{position:absolute;inset:0;width:0;background:var(--gold)}
-.hero-dot.on .fill{animation:hero-dot-fill 7s linear forwards}
+.hero-dot.on .fill{animation:hero-dot-fill var(--dot-dur,3000ms) linear forwards}
 @keyframes hero-dot-fill{to{width:100%}}
 .hero .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,10,.35) 0%,rgba(10,10,10,.1) 40%,rgba(10,10,10,.94) 100%)}
 .hero .content{position:absolute;left:clamp(20px,7vw,110px);bottom:clamp(80px,12vh,140px);z-index:2;max-width:760px}
@@ -332,7 +332,7 @@ footer{border-top:1px solid var(--line);margin-top:70px;padding:60px 0 40px}
 .hero-dot.on::before{background:rgba(255,255,255,.62)}
 .hero-dot .fill{position:absolute;left:0;top:50%;height:4px;margin-top:-2px;width:0;
   background:var(--gold);border-radius:2px}
-.hero-dot.on .fill{animation:hero-dot-fill 7s linear forwards}
+.hero-dot.on .fill{animation:hero-dot-fill var(--dot-dur,3000ms) linear forwards}
 </style>
 
 <style>
@@ -845,7 +845,8 @@ const SERIES={
 };
 
 /* ===== 首页主图轮播 ===== */
-const HERO_DUR=7000;
+const HERO_DUR_FIRST=6000;   // 首张停留 6s
+const HERO_DUR=3000;         // 之后每张 3s
 const HERO_KEYS=["aviation", "city", "life", "stage", "sport", "people", "animal", "landscape", "heritage"];
 const HERO_TITLES=["航空", "城市风光", "人文扫街", "舞台", "运动", "人物", "动物", "自然风光", "古建"];
 let heroIndex=0, heroTimer=null;
@@ -858,21 +859,27 @@ function loadHero(i){
   const u=b.dataset.src;
   if(u && !b.getAttribute('src')) b.src=u;   // 轮播到才加载，避免首屏下载全部9张大图
 }
-function heroRender(){
+function heroRender(fillDur){
   loadHero(heroIndex);                            // 当前图
   loadHero((heroIndex+1)%heroEls.bgs.length);     // 提前预加载下一张
   document.getElementById('heroEnterBtn').textContent='进入「'+HERO_TITLES[heroIndex]+'」作品集 →';
   heroEls.bgs.forEach((b,i)=>b.classList.toggle('on',i===heroIndex));
+  heroEls.dots.style.setProperty('--dot-dur',(fillDur||HERO_DUR)+'ms');  // 进度条与停留时长同步
   heroEls.dots.innerHTML=Array.from(heroEls.bgs).map((_,i)=>
     `<button class="hero-dot${i===heroIndex?' on':''}" data-i="${i}" aria-label="第${i+1}张首页图片"><span class="fill"></span></button>`).join('');
 }
+function heroNext(){
+  heroIndex=(heroIndex+1)%heroEls.bgs.length;
+  heroRender(HERO_DUR);
+  heroTimer=setTimeout(heroNext,HERO_DUR);
+}
 function heroStart(){
   heroStop();
-  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){heroRender();return;}
-  heroRender();
-  heroTimer=setInterval(()=>{heroIndex=(heroIndex+1)%heroEls.bgs.length;heroRender();},HERO_DUR);
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){heroRender(HERO_DUR_FIRST);return;}
+  heroRender(HERO_DUR_FIRST);                     // 首张 6s
+  heroTimer=setTimeout(heroNext,HERO_DUR_FIRST);
 }
-function heroStop(){if(heroTimer){clearInterval(heroTimer);heroTimer=null;}}
+function heroStop(){if(heroTimer){clearTimeout(heroTimer);heroTimer=null;}}
 heroEls.dots.addEventListener('click',e=>{
   const dot=e.target.closest('.hero-dot');if(!dot)return;
   heroIndex=+dot.dataset.i;heroStart();
