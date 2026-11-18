@@ -118,7 +118,7 @@ button{font-family:inherit;cursor:pointer}
 /* 封面 */
 .hero{height:100vh;min-height:640px;position:relative;overflow:hidden}
 .hero .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 35%;
-  opacity:0;transition:opacity .77s ease;animation:hero-zoom 2.94s var(--ease-out) forwards,hero-drift 30s ease-in-out 2.94s infinite alternate;
+  opacity:0;transition:opacity 1.8s cubic-bezier(.33,0,.2,1);animation:hero-zoom 7s cubic-bezier(.22,.61,.36,1) forwards,hero-drift 40s ease-in-out 7s infinite alternate;
   animation-play-state:paused}
 .hero .bg.on{opacity:1;animation-play-state:running}
 @keyframes hero-zoom{0%{transform:scale(1.12)}to{transform:scale(1)}}
@@ -127,7 +127,7 @@ button{font-family:inherit;cursor:pointer}
 .hero-dot{width:28px;height:2px;padding:0;border:0;background:rgba(255,255,255,.3);cursor:pointer;position:relative;overflow:hidden}
 .hero-dot.on{background:rgba(255,255,255,.6)}
 .hero-dot .fill{position:absolute;inset:0;width:0;background:var(--gold)}
-.hero-dot.on .fill{animation:hero-dot-fill 2.94s linear forwards}
+.hero-dot.on .fill{animation:hero-dot-fill 7s linear forwards}
 @keyframes hero-dot-fill{to{width:100%}}
 .hero .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,10,.35) 0%,rgba(10,10,10,.1) 40%,rgba(10,10,10,.94) 100%)}
 .hero .content{position:absolute;left:clamp(20px,7vw,110px);bottom:clamp(80px,12vh,140px);z-index:2;max-width:760px}
@@ -332,7 +332,7 @@ footer{border-top:1px solid var(--line);margin-top:70px;padding:60px 0 40px}
 .hero-dot.on::before{background:rgba(255,255,255,.62)}
 .hero-dot .fill{position:absolute;left:0;top:50%;height:4px;margin-top:-2px;width:0;
   background:var(--gold);border-radius:2px}
-.hero-dot.on .fill{animation:hero-dot-fill 2.94s linear forwards}
+.hero-dot.on .fill{animation:hero-dot-fill 7s linear forwards}
 </style>
 
 <style>
@@ -845,7 +845,7 @@ const SERIES={
 };
 
 /* ===== 首页主图轮播 ===== */
-const HERO_DUR=2940;
+const HERO_DUR=7000;
 const HERO_KEYS=["aviation", "city", "life", "stage", "sport", "people", "animal", "landscape", "heritage"];
 const HERO_TITLES=["航空", "城市风光", "人文扫街", "舞台", "运动", "人物", "动物", "自然风光", "古建"];
 let heroIndex=0, heroTimer=null;
