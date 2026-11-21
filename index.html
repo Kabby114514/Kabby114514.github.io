@@ -506,7 +506,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </nav>
 
 <!-- 悬浮返回键（二级页面显示） -->
-<button class="float-back" id="floatBack" data-nav="home">← 返回</button>
+<button class="float-back" id="floatBack">← 返回</button>
 
 <!-- ========== 视图：首页 ========== -->
 <div class="view active" id="view-home">
@@ -898,6 +898,9 @@ function cbStop(){}
 /* ===== 视图切换 + 开屏式转场（首次 2.2s，后续切换 1.1s） ===== */
 let current='home', busy=false;
 const TRANS_DUR=1100, TRANS_COVER=480; // 遮罩全黑时换页，避免闪出旧页面
+/* 导航栈：记录进入子视图前的来源视图与滚动位置，返回时精确还原 */
+const navStack=[];
+const scrollMemo={}; // 每个视图离开时的 scrollY，返回该视图时恢复
 function playTransition(onCovered){
   return new Promise(resolve=>{
     if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
@@ -933,17 +936,25 @@ function fillDetail(key){
     `<figure class="reveal"><img src="${src(id)}" loading="lazy" decoding="async" alt="作品 ${i+1}"><figcaption>作品 ${String(i+1).padStart(2,'0')}</figcaption></figure>`).join('');
   observeReveals();
 }
-function switchView(target){
-  if(busy||target===current)return;
+// 立即滚动定位，不受 html{scroll-behavior:smooth} 影响
+function doScroll(y){
+  const html=document.documentElement;
+  const prev=html.style.scrollBehavior;
+  html.style.scrollBehavior='auto';
+  window.scrollTo(0,y);
+  html.style.scrollBehavior=prev;
+}
+// 真正执行视图切换（含开屏式转场）
+function goView(target,restoreY){
   busy=true;
-  cbStop(); // 离开轮播时停止计时
-  heroStop(); // 离开首页时停止主图轮播
+  cbStop(); // 离开时停止主图/轮播计时
+  heroStop();
   playTransition(()=>{
     document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
     if(target==='detail'){fillDetail(pendingSeries);document.getElementById('view-detail').classList.add('active');}
     else document.getElementById('view-'+target).classList.add('active');
     current=target;
-    window.scrollTo(0,0);
+    doScroll(restoreY); // 返回时还原离开前的滚动位置；前进为 0
     document.querySelectorAll('.menu a[data-nav]').forEach(a=>a.classList.toggle('on',a.dataset.nav===target));
     // 二级页面（轮播/详情/关于）显示悬浮返回键
     document.getElementById('floatBack').classList.toggle('show',target==='carousel'||target==='detail'||target==='about');
@@ -951,6 +962,24 @@ function switchView(target){
     if(target==='home')heroStart();
     observeReveals();
   }).then(()=>{busy=false;});
+}
+function switchView(target,isBack){
+  if(busy)return;
+  if(isBack){
+    // 返回：记住当前位置，弹出来源视图，还原它离开时的滚动位置
+    scrollMemo[current]=window.scrollY;
+    const prev=navStack.pop();
+    const dest=prev?prev.view:'home';
+    const restoreY=prev?(scrollMemo[dest]||0):0;
+    if(dest===current){doScroll(restoreY);return;}
+    goView(dest,restoreY);
+  }else{
+    if(target===current)return;
+    // 前进：压栈来源视图与其滚动位置
+    scrollMemo[current]=window.scrollY;
+    navStack.push({view:current,scroll:window.scrollY});
+    goView(target,0);
+  }
 }
 let pendingSeries='aviation';
 document.addEventListener('click',e=>{
@@ -964,6 +993,11 @@ document.addEventListener('click',e=>{
   }
   const mcard=e.target.closest('.mcard');
   if(mcard){pendingSeries=mcard.dataset.nav||'more';switchView('detail');}
+});
+// 悬浮返回键：回到进入本视图之前的来源（首页/系列作品），而非固定回首页
+document.getElementById('floatBack').addEventListener('click',e=>{
+  e.preventDefault();
+  switchView(null,true);
 });
 
 /* ===== 滚动显现 ===== */
